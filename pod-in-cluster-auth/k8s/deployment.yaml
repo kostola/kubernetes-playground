@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: k8s-api-client
+  name: pod-in-cluster-auth
   namespace: default
   labels:
-    app: k8s-api-client
+    app: pod-in-cluster-auth
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: k8s-api-client
+      app: pod-in-cluster-auth
   template:
     metadata:
       labels:
-        app: k8s-api-client
+        app: pod-in-cluster-auth
     spec:
-      serviceAccountName: k8s-api-client
+      serviceAccountName: pod-in-cluster-auth
       containers:
-      - name: k8s-api-client
-        image: localhost/k8s-api-client:latest
+      - name: pod-in-cluster-auth
+        image: localhost/pod-in-cluster-auth:latest
         imagePullPolicy: Never  # For local KinD testing
         env:
         - name: TARGET_NAMESPACE

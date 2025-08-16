@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Global configuration for k8s-api-client scripts
+# Global configuration for pod-in-cluster-auth scripts
 
 # Cluster configuration
 export CLUSTER_NAME="k8s-playground"
 export NAMESPACE="default"
-export APP_NAME="k8s-api-client"
-export IMAGE_NAME="k8s-api-client"
+export APP_NAME="pod-in-cluster-auth"
+export IMAGE_NAME="pod-in-cluster-auth"
 export IMAGE_TAG="latest"
 
 # Container runtime detection and configuration

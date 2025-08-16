@@ -12,12 +12,12 @@ RUN go mod download
 COPY main.go .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o k8s-api-client .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o pod-in-cluster-auth .
 
 # Final stage: distroless runtime image
 FROM gcr.io/distroless/static-debian12:nonroot
 
 # Copy the binary from builder stage
-COPY --from=builder /app/k8s-api-client /k8s-api-client
+COPY --from=builder /app/pod-in-cluster-auth /pod-in-cluster-auth
 
-CMD ["/k8s-api-client"]
+CMD ["/pod-in-cluster-auth"]

@@ -1,4 +1,4 @@
-module k8s-api-client
+module pod-in-cluster-auth
 
 go 1.21
 

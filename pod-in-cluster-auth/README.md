@@ -1,20 +1,25 @@
-# Kubernetes API Client
+# Pod In-Cluster Authentication
 
-A simple Go application that demonstrates how to access Kubernetes APIs using a ServiceAccount and the official Kubernetes client-go library.
+A Go application demonstrating how a pod can connect to the cluster Kubernetes API server using an injected ServiceAccount. The main goal is to show in-cluster authentication patterns with proper RBAC configuration.
 
 ## Features
 
-- Connects to Kubernetes cluster using in-cluster configuration
+**Primary Goal: Pod Authentication**
+- Demonstrates how a pod connects to Kubernetes cluster using in-cluster configuration
+- Shows ServiceAccount injection and usage patterns
+- Implements proper RBAC with minimal required permissions
+
+**API Interactions:**
 - Lists cluster nodes and their status
 - Lists all namespaces in the cluster
 - Lists pods in a specified namespace (configurable via environment variable)
+- Uses downward API to access pod metadata
 - Runs continuously, updating information every 30 seconds
-- Uses proper RBAC with minimal required permissions
 
 ## Project Structure
 
 ```
-k8s-api-client/
+pod-in-cluster-auth/
 ├── main.go                 # Main application code
 ├── go.mod                  # Go module definition
 ├── Dockerfile              # Container image configuration
@@ -73,7 +78,7 @@ go install sigs.k8s.io/kind@latest
 
 ### Option 1: One-Command Test
 ```bash
-cd k8s-api-client
+cd pod-in-cluster-auth
 ./scripts/test.sh
 ```
 
@@ -81,7 +86,7 @@ cd k8s-api-client
 
 1. **Set up KinD cluster:**
    ```bash
-   cd k8s-api-client
+   cd pod-in-cluster-auth
    ./scripts/kind-setup.sh
    ```
 
@@ -97,12 +102,12 @@ cd k8s-api-client
 
 4. **View application logs:**
    ```bash
-   kubectl logs -f deployment/k8s-api-client
+   kubectl logs -f deployment/pod-in-cluster-auth
    ```
 
 5. **Check pod status:**
    ```bash
-   kubectl get pods -l app=k8s-api-client
+   kubectl get pods -l app=pod-in-cluster-auth
    ```
 
 ## Manual Setup
@@ -110,7 +115,7 @@ cd k8s-api-client
 ### 1. Build the Application
 
 ```bash
-cd k8s-api-client
+cd pod-in-cluster-auth
 
 # Build Go dependencies
 go mod tidy
@@ -119,8 +124,8 @@ go mod tidy
 ./scripts/build.sh
 
 # Or build manually:
-# podman build -t k8s-api-client:latest .
-# docker build -t k8s-api-client:latest .
+# podman build -t pod-in-cluster-auth:latest .
+# docker build -t pod-in-cluster-auth:latest .
 ```
 
 ### 2. Load Image into KinD (if using KinD)
@@ -129,11 +134,11 @@ The build script automatically loads the image into KinD if a cluster exists. Fo
 
 ```bash
 # For Podman
-podman save -o /tmp/k8s-api-client-latest.tar k8s-api-client:latest
-kind load image-archive /tmp/k8s-api-client-latest.tar --name k8s-playground
+podman save -o /tmp/pod-in-cluster-auth-latest.tar pod-in-cluster-auth:latest
+kind load image-archive /tmp/pod-in-cluster-auth-latest.tar --name k8s-playground
 
 # For Docker
-kind load docker-image k8s-api-client:latest --name k8s-playground
+kind load docker-image pod-in-cluster-auth:latest --name k8s-playground
 ```
 
 ### 3. Deploy to Kubernetes
@@ -170,8 +175,8 @@ All scripts use a shared configuration file (`scripts/config.sh`) that exports:
 # Cluster configuration
 CLUSTER_NAME="k8s-playground"
 NAMESPACE="default"
-APP_NAME="k8s-api-client"
-IMAGE_NAME="k8s-api-client"
+APP_NAME="pod-in-cluster-auth"
+IMAGE_NAME="pod-in-cluster-auth"
 IMAGE_TAG="latest"
 
 # Container runtime (auto-detected)
@@ -195,8 +200,8 @@ The detection handles the different ways Podman and Docker load images into KinD
 
 The application uses minimal RBAC permissions:
 
-- **ServiceAccount**: `k8s-api-client`
-- **ClusterRole**: `k8s-api-client-role`
+- **ServiceAccount**: `pod-in-cluster-auth`
+- **ClusterRole**: `pod-in-cluster-auth-role`
   - `get`, `list`, `watch` on `pods`, `namespaces`, `nodes`
   - `get`, `list`, `watch` on `events`
 
@@ -212,26 +217,26 @@ The application uses minimal RBAC permissions:
 
 ### View Application Logs
 ```bash
-kubectl logs -f deployment/k8s-api-client
+kubectl logs -f deployment/pod-in-cluster-auth
 ```
 
 ### Check Pod Status
 ```bash
-kubectl get pods -l app=k8s-api-client
+kubectl get pods -l app=pod-in-cluster-auth
 kubectl describe pod <pod-name>
 ```
 
 ### Check RBAC Configuration
 ```bash
-kubectl get serviceaccount k8s-api-client
-kubectl get clusterrole k8s-api-client-role
-kubectl get clusterrolebinding k8s-api-client-binding
+kubectl get serviceaccount pod-in-cluster-auth
+kubectl get clusterrole pod-in-cluster-auth-role
+kubectl get clusterrolebinding pod-in-cluster-auth-binding
 ```
 
 ### Test API Access Manually
 ```bash
 # Get a shell in the pod
-kubectl exec -it deployment/k8s-api-client -- sh
+kubectl exec -it deployment/pod-in-cluster-auth -- sh
 
 # Test API access using curl (requires installing curl first)
 apk add curl
@@ -262,9 +267,9 @@ kubectl delete -f k8s/deployment.yaml
 kubectl delete -f k8s/rbac.yaml
 
 # Remove container image
-podman rmi k8s-api-client:latest
+podman rmi pod-in-cluster-auth:latest
 # or
-docker rmi k8s-api-client:latest
+docker rmi pod-in-cluster-auth:latest
 
 # Delete KinD cluster
 kind delete cluster --name k8s-playground
