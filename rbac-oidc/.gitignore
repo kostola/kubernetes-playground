@@ -1,0 +1,3 @@
+k8s/kubeconfig.yaml
+keycloak/certs
+keycloak/kind-oidc-config.yaml

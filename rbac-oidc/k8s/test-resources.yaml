@@ -1,0 +1,171 @@
+---
+# Test namespace for RBAC testing
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rbac-test
+  labels:
+    purpose: rbac-testing
+
+---
+# Test ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-config
+  namespace: rbac-test
+data:
+  config.txt: |
+    This is a test configuration file
+    for RBAC testing purposes.
+
+---
+# Test Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-secret
+  namespace: rbac-test
+type: Opaque
+data:
+  username: dGVzdHVzZXI=  # testuser
+  password: dGVzdHBhc3M=  # testpass
+
+---
+# Test Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app
+  namespace: rbac-test
+  labels:
+    app: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app
+  template:
+    metadata:
+      labels:
+        app: test-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: test-config
+
+---
+# Test Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+  namespace: rbac-test
+spec:
+  selector:
+    app: test-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+
+---
+# Test Pod for direct testing
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+  namespace: rbac-test
+  labels:
+    app: test-pod
+    created-by: rbac-oidc-test
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "sleep 3600"]
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "25m"
+      limits:
+        memory: "64Mi"
+        cpu: "50m"
+
+---
+# Test Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test-job
+  namespace: rbac-test
+spec:
+  template:
+    spec:
+      containers:
+      - name: test
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args: ["-c", "echo 'Hello from test job' && sleep 10"]
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "25m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+      restartPolicy: Never
+  backoffLimit: 3
+
+---
+# Resource Quota for the test namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: test-quota
+  namespace: rbac-test
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    pods: "10"
+    persistentvolumeclaims: "4"
+    services: "5"
+    secrets: "10"
+    configmaps: "10"
+
+---
+# Limit Range for the test namespace
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: test-limits
+  namespace: rbac-test
+spec:
+  limits:
+  - default:
+      cpu: "200m"
+      memory: "256Mi"
+    defaultRequest:
+      cpu: "50m"
+      memory: "64Mi"
+    type: Container

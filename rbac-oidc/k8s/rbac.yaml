@@ -1,0 +1,200 @@
+---
+# Alternative binding using groups (recommended approach)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-cluster-admins-group-binding
+subjects:
+- kind: Group
+  name: oidc:cluster-admins
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin  # Use built-in cluster-admin role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole for developers (can manage workloads but not cluster resources)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc-developers
+rules:
+# Core API group
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/status", "pods/exec"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["services", "endpoints", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+# Apps API group
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments/scale", "replicasets/scale", "statefulsets/scale"]
+  verbs: ["get", "update", "patch"]
+# Batch API group
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Extensions API group
+- apiGroups: ["extensions"]
+  resources: ["deployments", "daemonsets", "replicasets", "ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Networking API group
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Autoscaling API group
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Events (read-only)
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding for developers group
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-developers-binding
+subjects:
+- kind: Group
+  name: oidc:developers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: oidc-developers
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole for viewers (read-only access to most resources)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc-viewers
+rules:
+# Core API group - read-only
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/status"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims", "persistentvolumes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["namespaces", "nodes"]
+  verbs: ["get", "list", "watch"]
+# Apps API group - read-only
+- apiGroups: ["apps"]
+  resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+# Batch API group - read-only
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+# Extensions API group - read-only
+- apiGroups: ["extensions"]
+  resources: ["deployments", "daemonsets", "replicasets", "ingresses"]
+  verbs: ["get", "list", "watch"]
+# Networking API group - read-only
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses", "networkpolicies"]
+  verbs: ["get", "list", "watch"]
+# Autoscaling API group - read-only
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch"]
+# Events - read-only
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+# Metrics (if metrics-server is installed)
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+
+---
+# ClusterRoleBinding for viewers group
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-viewers-binding
+subjects:
+- kind: Group
+  name: oidc:viewers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: oidc-viewers
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Additional Role for developers in specific namespaces (example)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: oidc-developers-namespace
+rules:
+# Allow developers to manage resource quotas and limit ranges in their namespaces
+- apiGroups: [""]
+  resources: ["resourcequotas", "limitranges"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+# RoleBinding for developers in default namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: oidc-developers-namespace-binding
+  namespace: default
+subjects:
+- kind: Group
+  name: oidc:developers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: oidc-developers-namespace
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole for basic authenticated users (minimal permissions)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: oidc-basic-user
+rules:
+# Allow users to see their own user information
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
+# Allow access to discovery APIs
+- nonResourceURLs: ["/api", "/api/*", "/apis", "/apis/*", "/healthz", "/version"]
+  verbs: ["get"]
+
+---
+# ClusterRoleBinding for all authenticated OIDC users
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: oidc-basic-users-binding
+subjects:
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: oidc-basic-user
+  apiGroup: rbac.authorization.k8s.io

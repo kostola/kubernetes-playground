@@ -1,0 +1,36 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ${CLUSTER_NAME}
+networking:
+  # Expose API server port for external access
+  apiServerPort: 6443
+  # Configure port mapping for accessing services
+  kubeProxyMode: "iptables"
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+        extraArgs:
+          oidc-issuer-url: ${KEYCLOAK_ISSUER_URL}
+          oidc-client-id: ${KEYCLOAK_CLIENT_ID}
+          oidc-username-claim: preferred_username
+          oidc-groups-claim: groups
+          oidc-username-prefix: "oidc:"
+          oidc-groups-prefix: "oidc:"
+          # Use CA certificate for OIDC verification
+          oidc-ca-file: /etc/kubernetes/pki/oidc-ca.crt
+          # Enable OIDC signing algorithms
+          oidc-signing-algs: RS256
+  extraMounts:
+  - hostPath: ${CA_CERT_FILE}
+    containerPath: /etc/kubernetes/pki/oidc-ca.crt
+    readOnly: true
+  extraPortMappings:
+  - containerPort: 30000
+    hostPort: 30000
+    protocol: TCP
+  - containerPort: 30001
+    hostPort: 30001
+    protocol: TCP
