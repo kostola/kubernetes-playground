@@ -26,11 +26,13 @@ export KUBECTL_CONTEXT="kind-${CLUSTER_NAME}"
 # Paths
 export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
+export TARGET_DIR="${PROJECT_ROOT}/target/${NAME_PREFIX}"
 export KEYCLOAK_CONFIG_DIR="${PROJECT_ROOT}/keycloak"
-export KEYCLOAK_CERTS_DIR="${KEYCLOAK_CONFIG_DIR}/certs"
+export KEYCLOAK_CERTS_DIR="${TARGET_DIR}/certs"
 export K8S_CONFIG_DIR="${PROJECT_ROOT}/k8s"
 export RBAC_CONFIG_FILE="${K8S_CONFIG_DIR}/rbac.yaml"
-export KUBECONFIG_EXPORT_FILE="${K8S_CONFIG_DIR}/kubeconfig.yaml"
+export KUBECONFIG_EXPORT_FILE="${TARGET_DIR}/kubeconfig.yaml"
+export KIND_CONFIG_FILE="${TARGET_DIR}/kind-oidc-config.yaml"
 export KEYCLOAK_HTTPS_URL="https://localhost:${KEYCLOAK_HTTPS_PORT}"
 export KEYCLOAK_HTTP_URL="http://localhost:${KEYCLOAK_HTTP_PORT}"
 export KEYCLOAK_ISSUER_URL="https://${KEYCLOAK_CONTAINER_NAME}:8443/realms/${KEYCLOAK_REALM}"
@@ -123,6 +125,13 @@ detect_container_runtime
 is_container_running() {
     local container_name="$1"
     ${CONTAINER_CMD} ps --format '{{.Names}}' | grep -q "^${container_name}$"
+}
+
+# Create target directory structure
+create_target_directories() {
+    log_inf "Creating target directory structure: ${TARGET_DIR}"
+    mkdir -p "${TARGET_DIR}/certs"
+    log_suc "Target directories created successfully"
 }
 
 # Check Kubernetes requirements

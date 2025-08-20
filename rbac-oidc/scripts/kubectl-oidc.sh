@@ -29,7 +29,7 @@ kubectl_config() {
 
     log_inf "Configuring kubectl OIDC for user: ${username}"
 
-    local ID_TOKEN=$(curl -k -X POST $ENDPOINT \
+    local ID_TOKEN=$(curl -ks -X POST $ENDPOINT \
         -d grant_type=password \
         -d client_id=${KEYCLOAK_CLIENT_ID} \
         -d client_secret=${KEYCLOAK_CLIENT_SECRET} \
@@ -38,7 +38,7 @@ kubectl_config() {
         -d scope=openid \
         -d response_type=id_token | jq -r '.id_token')
 
-    local REFRESH_TOKEN=$(curl -k -X POST $ENDPOINT \
+    local REFRESH_TOKEN=$(curl -ks -X POST $ENDPOINT \
         -d grant_type=password \
         -d client_id=${KEYCLOAK_CLIENT_ID} \
         -d client_secret=${KEYCLOAK_CLIENT_SECRET} \

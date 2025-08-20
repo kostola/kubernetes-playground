@@ -8,8 +8,8 @@ source "${SCRIPT_DIR}/config.sh"
 
 log_inf "Generating self-signed certificate for Keycloak HTTPS..."
 
-# Create certs directory if it doesn't exist
-mkdir -p "${KEYCLOAK_CERTS_DIR}"
+# Create target directory structure
+create_target_directories
 
 # Generate CA private key
 if [ ! -f "${CA_KEY_FILE}" ]; then

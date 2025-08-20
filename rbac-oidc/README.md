@@ -122,6 +122,16 @@ rbac-oidc/
 │   ├── get-token.sh              # Helper to get OIDC tokens
 │   ├── config.sh                 # Shared configuration
 │   └── cleanup.sh                # Cleanup resources
+├── target/                       # Generated files (excluded from git)
+│   └── {NAME_PREFIX}/            # Configuration-specific folder
+│       ├── certs/                # TLS certificates
+│       │   ├── ca.crt            # Certificate Authority certificate
+│       │   ├── ca.key            # Certificate Authority private key
+│       │   ├── keycloak.crt      # Keycloak certificate
+│       │   ├── keycloak.key      # Keycloak private key
+│       │   └── keycloak.p12      # Keycloak PKCS12 keystore
+│       ├── kind-oidc-config.yaml # Generated KinD configuration
+│       └── kubeconfig.yaml       # Exported cluster kubeconfig
 └── README.md                     # This file
 ```
 
@@ -189,12 +199,19 @@ export NAME_PREFIX="my-demo"
 # - Container: my-demo-keycloak
 # - Cluster: my-demo-cluster
 # - Network: my-demo
+# - Target folder: rbac-oidc/target/my-demo/
 ```
+
+Generated files for each configuration are organized in separate folders under `target/{NAME_PREFIX}/`:
+- `target/my-demo/certs/` - TLS certificates
+- `target/my-demo/kind-oidc-config.yaml` - KinD cluster configuration
+- `target/my-demo/kubeconfig.yaml` - Cluster kubeconfig
 
 This is useful for:
 - Running multiple instances of the demo simultaneously
 - Avoiding naming conflicts with existing resources
 - Using custom naming conventions
+- Keeping configurations isolated and organized
 
 ### Getting OIDC Tokens Manually
 

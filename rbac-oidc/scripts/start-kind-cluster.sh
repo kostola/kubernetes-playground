@@ -30,9 +30,12 @@ if [ ! -f "${CA_CERT_FILE}" ]; then
     exit 1
 fi
 
+# Ensure target directory exists
+create_target_directories
+
 # Generate kind configuration from template
 KIND_CONFIG_TEMPLATE="${KEYCLOAK_CONFIG_DIR}/kind-oidc-config.tmpl.yaml"
-KIND_CONFIG_FILE="${KEYCLOAK_CONFIG_DIR}/kind-oidc-config.yaml"
+# Note: KIND_CONFIG_FILE is defined in config.sh as ${TARGET_DIR}/kind-oidc-config.yaml
 
 if [ ! -f "${KIND_CONFIG_TEMPLATE}" ]; then
     log_err "Kind configuration template not found at ${KIND_CONFIG_TEMPLATE}"

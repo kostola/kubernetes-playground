@@ -140,28 +140,22 @@ fi
 if [ "$CLEANUP_FILES" = true ]; then
     log_inf "Cleaning up generated files..."
 
-    # Remove generated kind configuration
-    if [ -f "${KEYCLOAK_CONFIG_DIR}/kind-oidc-config.yaml" ]; then
-        rm -f "${KEYCLOAK_CONFIG_DIR}/kind-oidc-config.yaml"
-        log_suc "Removed generated kind-oidc-config.yaml"
-    fi
-
-    # Remove exported kubeconfig
-    if [ -f "${KUBECONFIG_EXPORT_FILE}" ]; then
-        rm -f "${KUBECONFIG_EXPORT_FILE}"
-        log_suc "Removed exported kubeconfig"
-    fi
-
-    # Remove certificates directory
-    if [ -d "${KEYCLOAK_CERTS_DIR}" ]; then
-        rm -rf "${KEYCLOAK_CERTS_DIR}"
-        log_suc "Removed certificates directory"
+    # Remove entire target directory for this configuration
+    if [ -d "${TARGET_DIR}" ]; then
+        rm -rf "${TARGET_DIR}"
+        log_suc "Removed target directory: ${TARGET_DIR}"
     fi
 
     # Remove temporary files
     rm -f /tmp/kind-oidc-config-${CLUSTER_NAME}.yaml* 2>/dev/null || true
     rm -f /tmp/keycloak-*.log 2>/dev/null || true
     log_inf "Cleaned up temporary files"
+
+    # Clean up empty parent target directory if no other configurations exist
+    if [ -d "${PROJECT_ROOT}/target" ] && [ -z "$(ls -A "${PROJECT_ROOT}/target" 2>/dev/null)" ]; then
+        rm -rf "${PROJECT_ROOT}/target"
+        log_inf "Removed empty target directory"
+    fi
 fi
 
 echo ""
