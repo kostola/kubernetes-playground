@@ -3,7 +3,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: ${CLUSTER_NAME}
 networking:
   # Expose API server port for external access
-  apiServerPort: 6443
+  apiServerPort: ${KUBE_API_SERVER_PORT}
   # Configure port mapping for accessing services
   kubeProxyMode: "iptables"
 nodes:
@@ -27,10 +27,3 @@ nodes:
   - hostPath: ${CA_CERT_FILE}
     containerPath: /etc/kubernetes/pki/oidc-ca.crt
     readOnly: true
-  extraPortMappings:
-  - containerPort: 30000
-    hostPort: 30000
-    protocol: TCP
-  - containerPort: 30001
-    hostPort: 30001
-    protocol: TCP

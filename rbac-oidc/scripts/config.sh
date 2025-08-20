@@ -8,8 +8,8 @@ export NAME_PREFIX="${NAME_PREFIX:-k8spg-rbac-oidc}"
 export KEYCLOAK_CONTAINER_NAME="${NAME_PREFIX}-keycloak"
 export KEYCLOAK_VERSION="26.3.2"
 export KEYCLOAK_IMAGE="quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}"
-export KEYCLOAK_HTTP_PORT="8080"
-export KEYCLOAK_HTTPS_PORT="8443"
+export KEYCLOAK_HTTP_PORT="${KEYCLOAK_HTTP_PORT:-8080}"
+export KEYCLOAK_HTTPS_PORT="${KEYCLOAK_HTTPS_PORT:-8443}"
 export KEYCLOAK_ADMIN_USER="admin"
 export KEYCLOAK_ADMIN_PASSWORD="admin123"
 export KEYCLOAK_REALM="kubernetes"
@@ -22,6 +22,7 @@ export NETWORK_NAME="${NAME_PREFIX}"
 # Kubernetes cluster configuration
 export CLUSTER_NAME="${NAME_PREFIX}-cluster"
 export KUBECTL_CONTEXT="kind-${CLUSTER_NAME}"
+export KUBE_API_SERVER_PORT="${KUBE_API_SERVER_PORT:-6443}"
 
 # Paths
 export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -35,7 +36,7 @@ export KUBECONFIG_EXPORT_FILE="${TARGET_DIR}/kubeconfig.yaml"
 export KIND_CONFIG_FILE="${TARGET_DIR}/kind-oidc-config.yaml"
 export KEYCLOAK_HTTPS_URL="https://localhost:${KEYCLOAK_HTTPS_PORT}"
 export KEYCLOAK_HTTP_URL="http://localhost:${KEYCLOAK_HTTP_PORT}"
-export KEYCLOAK_ISSUER_URL="https://${KEYCLOAK_CONTAINER_NAME}:8443/realms/${KEYCLOAK_REALM}"
+export KEYCLOAK_ISSUER_URL="https://${KEYCLOAK_CONTAINER_NAME}:${KEYCLOAK_HTTPS_PORT}/realms/${KEYCLOAK_REALM}"
 
 # Keycloak certificate configuration
 export CA_CERT_FILE="${KEYCLOAK_CERTS_DIR}/ca.crt"

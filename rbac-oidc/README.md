@@ -98,7 +98,7 @@ kubectl delete pod test-pod  # ❌ Should fail
 
 ### Accessing Keycloak Admin Console
 
-- **URL**: https://localhost:8443
+- **URL**: https://localhost:8443 (or your configured `KEYCLOAK_HTTPS_PORT`)
 - **Username**: `admin`
 - **Password**: `admin123`
 - **Realm**: `kubernetes`
@@ -186,32 +186,73 @@ The cleanup script provides flexible options for removing different components. 
 
 ## Advanced Usage
 
-### Customizing Resource Names
+### Customizing Configuration
 
-You can customize the prefix used for all resources (containers, clusters, networks) by setting the `NAME_PREFIX` environment variable:
+You can customize various aspects of the setup by setting environment variables before running the scripts:
+
+#### Resource Names and Ports
 
 ```bash
-# Use custom prefix for all resources
+# Customize resource names and ports
 export NAME_PREFIX="my-demo"
+export KEYCLOAK_HTTP_PORT="9080"
+export KEYCLOAK_HTTPS_PORT="9443"
+export KUBE_API_SERVER_PORT="7443"
 ./scripts/full-setup.sh
 
 # This will create:
-# - Container: my-demo-keycloak
-# - Cluster: my-demo-cluster
+# - Container: my-demo-keycloak (listening on ports 9080/9443)
+# - Cluster: my-demo-cluster (API server on port 7443)
 # - Network: my-demo
 # - Target folder: rbac-oidc/target/my-demo/
 ```
+
+#### Configurable Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NAME_PREFIX` | `k8spg-rbac-oidc` | Prefix for all resources (containers, clusters, networks) |
+| `KEYCLOAK_HTTP_PORT` | `8080` | Keycloak HTTP port (mapped to localhost) |
+| `KEYCLOAK_HTTPS_PORT` | `8443` | Keycloak HTTPS port (mapped to localhost) |
+| `KUBE_API_SERVER_PORT` | `6443` | Kubernetes API server port (mapped to localhost) |
 
 Generated files for each configuration are organized in separate folders under `target/{NAME_PREFIX}/`:
 - `target/my-demo/certs/` - TLS certificates
 - `target/my-demo/kind-oidc-config.yaml` - KinD cluster configuration
 - `target/my-demo/kubeconfig.yaml` - Cluster kubeconfig
 
+#### Running Multiple Instances
+
+Example of running two demo instances simultaneously:
+
+```bash
+# First instance (default ports)
+export NAME_PREFIX="demo1"
+./scripts/full-setup.sh
+# Keycloak at https://localhost:8443
+# Kubernetes API at https://localhost:6443
+
+# Second instance (custom ports to avoid conflicts)
+export NAME_PREFIX="demo2"
+export KEYCLOAK_HTTP_PORT="9080"
+export KEYCLOAK_HTTPS_PORT="9443"
+export KUBE_API_SERVER_PORT="7443"
+./scripts/full-setup.sh
+# Keycloak at https://localhost:9443
+# Kubernetes API at https://localhost:7443
+```
+
 This is useful for:
 - Running multiple instances of the demo simultaneously
-- Avoiding naming conflicts with existing resources
+- Avoiding port conflicts with existing services
+- Testing different configurations side by side
 - Using custom naming conventions
 - Keeping configurations isolated and organized
+
+**Note**: When using custom API server ports, the generated kubeconfig file will automatically use the correct port. You can also access the cluster directly with:
+```bash
+kubectl --server=https://localhost:7443 --kubeconfig=target/demo2/kubeconfig.yaml get nodes
+```
 
 ### Getting OIDC Tokens Manually
 
