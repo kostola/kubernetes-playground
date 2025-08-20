@@ -10,7 +10,7 @@ ${SCRIPT_DIR}/generate-certs.sh
 ${SCRIPT_DIR}/start-keycloak.sh
 ${SCRIPT_DIR}/start-kind-cluster.sh
 
-export KUBECONFIG="${KUBECONFIG_EXPORT_FILE}"
+export KUBECONFIG="${KUBECONFIG_FILE}"
 ${SCRIPT_DIR}/kubectl-oidc.sh alice password123
 ${SCRIPT_DIR}/kubectl-oidc.sh bob password123
 ${SCRIPT_DIR}/kubectl-oidc.sh charlie password123

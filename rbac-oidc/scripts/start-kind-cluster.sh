@@ -110,12 +110,12 @@ else
 fi
 
 # Export kubeconfig for the cluster
-log_inf "Exporting kubeconfig to ${KUBECONFIG_EXPORT_FILE}..."
-if kind export kubeconfig --name "${CLUSTER_NAME}" --kubeconfig "${KUBECONFIG_EXPORT_FILE}"; then
-    log_suc "Kubeconfig exported successfully to ${KUBECONFIG_EXPORT_FILE}"
+log_inf "Exporting kubeconfig to ${KUBECONFIG_FILE}..."
+if kind export kubeconfig --name "${CLUSTER_NAME}" --kubeconfig "${KUBECONFIG_FILE}"; then
+    log_suc "Kubeconfig exported successfully to ${KUBECONFIG_FILE}"
 
     # Make kubeconfig file readable by owner only for security
-    chmod 600 "${KUBECONFIG_EXPORT_FILE}"
+    chmod 600 "${KUBECONFIG_FILE}"
     log_inf "Set kubeconfig file permissions to 600 for security"
 else
     log_err "Failed to export kubeconfig"
@@ -140,9 +140,9 @@ echo ""
 log_inf "To use this cluster:"
 log_inf "  kubectl --context ${KUBECTL_CONTEXT} get nodes"
 log_inf "  # Or use exported kubeconfig:"
-log_inf "  kubectl --kubeconfig ${KUBECONFIG_EXPORT_FILE} get nodes"
+log_inf "  kubectl --kubeconfig ${KUBECONFIG_FILE} get nodes"
 log_inf "  # Or set as default:"
-log_inf "  export KUBECONFIG=${KUBECONFIG_EXPORT_FILE}"
+log_inf "  export KUBECONFIG=${KUBECONFIG_FILE}"
 echo ""
 log_inf "To delete this cluster:"
 log_inf "  kind delete cluster --name ${CLUSTER_NAME}"
@@ -151,7 +151,7 @@ log_inf "Configuration files:"
 log_inf "  Kind template: ${KIND_CONFIG_TEMPLATE}"
 log_inf "  Kind config: ${KIND_CONFIG_FILE}"
 log_inf "  RBAC config: ${RBAC_CONFIG_FILE}"
-log_inf "  Kubeconfig export: ${KUBECONFIG_EXPORT_FILE}"
+log_inf "  Kubeconfig export: ${KUBECONFIG_FILE}"
 echo ""
 log_inf "Network information:"
 log_inf "  Both Keycloak and kind cluster are on network: ${NETWORK_NAME}"
