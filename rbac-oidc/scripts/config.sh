@@ -2,7 +2,7 @@
 
 # Global configuration
 
-export NAME_PREFIX="k8spg-rbac-oidc"
+export NAME_PREFIX="${NAME_PREFIX:-k8spg-rbac-oidc}"
 
 # Keycloak configuration
 export KEYCLOAK_CONTAINER_NAME="${NAME_PREFIX}-keycloak"

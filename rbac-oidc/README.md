@@ -176,6 +176,26 @@ The cleanup script provides flexible options for removing different components. 
 
 ## Advanced Usage
 
+### Customizing Resource Names
+
+You can customize the prefix used for all resources (containers, clusters, networks) by setting the `NAME_PREFIX` environment variable:
+
+```bash
+# Use custom prefix for all resources
+export NAME_PREFIX="my-demo"
+./scripts/full-setup.sh
+
+# This will create:
+# - Container: my-demo-keycloak
+# - Cluster: my-demo-cluster
+# - Network: my-demo
+```
+
+This is useful for:
+- Running multiple instances of the demo simultaneously
+- Avoiding naming conflicts with existing resources
+- Using custom naming conventions
+
 ### Getting OIDC Tokens Manually
 
 ```bash
