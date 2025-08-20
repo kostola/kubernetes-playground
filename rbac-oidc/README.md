@@ -118,7 +118,7 @@ rbac-oidc/
 │   ├── start-keycloak.sh         # Start Keycloak with TLS
 │   ├── start-kind-cluster.sh     # Create and configure KinD cluster
 │   ├── generate-certs.sh         # Generate TLS certificates
-│   ├── kubectl-oidc.sh           # Configure kubectl for OIDC users
+│   ├── kubectl-oidc.sh           # Configure kubectl for OIDC user (accepts username/password)
 │   ├── get-token.sh              # Helper to get OIDC tokens
 │   ├── config.sh                 # Shared configuration
 │   └── cleanup.sh                # Cleanup resources
@@ -199,8 +199,9 @@ Edit `k8s/rbac.yaml` to modify permissions or add new roles. Key patterns includ
 
 1. Edit `keycloak/realm-config.json` to add users and groups
 2. Restart Keycloak: `./scripts/start-keycloak.sh`
-3. Update RBAC policies in `k8s/rbac.yaml` if needed
-4. Apply changes: `kubectl apply -f k8s/rbac.yaml`
+3. Configure kubectl for the new user: `./scripts/kubectl-oidc.sh <username> <password>`
+4. Update RBAC policies in `k8s/rbac.yaml` if needed
+5. Apply changes: `kubectl apply -f k8s/rbac.yaml`
 
 ## Security Considerations
 
