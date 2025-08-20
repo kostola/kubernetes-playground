@@ -6,6 +6,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/config.sh"
 
+# Export and validate KUBECONFIG
+export_and_validate_kubeconfig
+
 # Default options
 CLEANUP_CONTAINERS=false
 CLEANUP_CLUSTER=false

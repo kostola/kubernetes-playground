@@ -135,6 +135,16 @@ create_target_directories() {
     log_suc "Target directories created successfully"
 }
 
+# Export and validate KUBECONFIG
+export_and_validate_kubeconfig() {
+    export KUBECONFIG="${KUBECONFIG_FILE}"
+    if [ ! -f "${KUBECONFIG}" ]; then
+        log_err "KUBECONFIG file not found: ${KUBECONFIG}"
+        log_err "Please ensure the Kubernetes cluster is running and kubeconfig is exported"
+        exit 1
+    fi
+}
+
 # Check Kubernetes requirements
 check_k8s_requirements() {
     check_requirements

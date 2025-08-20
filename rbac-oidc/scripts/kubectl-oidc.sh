@@ -21,6 +21,9 @@ fi
 USERNAME="$1"
 PASSWORD="$2"
 
+# Export and validate KUBECONFIG
+export_and_validate_kubeconfig
+
 export ENDPOINT="${KEYCLOAK_ISSUER_URL}/protocol/openid-connect/token"
 
 kubectl_config() {
@@ -28,6 +31,12 @@ kubectl_config() {
     local password="$2"
 
     log_inf "Configuring kubectl OIDC for user: ${username}"
+
+    # Check if CA certificate file exists
+    if [ ! -f "${CA_CERT_FILE}" ]; then
+        log_err "CA certificate file not found: ${CA_CERT_FILE}"
+        exit 1
+    fi
 
     local ID_TOKEN=$(curl -ks -X POST $ENDPOINT \
         -d grant_type=password \

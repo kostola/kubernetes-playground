@@ -52,6 +52,9 @@ if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
     log_wrn "KinD cluster '${CLUSTER_NAME}' already exists"
     CLUSTER_EXISTS=true
 
+    # Validate KUBECONFIG exists for existing cluster
+    export_and_validate_kubeconfig
+
     # Verify existing cluster is accessible
     log_inf "Verifying existing cluster is accessible..."
     if kubectl cluster-info --context ${KUBECTL_CONTEXT} >/dev/null 2>&1; then
@@ -74,7 +77,9 @@ if kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
 else
     # Create KinD cluster with OIDC configuration
     log_inf "Creating KinD cluster '${CLUSTER_NAME}' with OIDC integration..."
-    kind create cluster --config "${KIND_CONFIG_FILE}"
+    kind create cluster --config "${KIND_CONFIG_FILE}" --kubeconfig "${KUBECONFIG_FILE}"
+
+    export_and_validate_kubeconfig
 
     # Connect kind cluster to the same network as Keycloak
     log_inf "Connecting kind cluster to network '${NETWORK_NAME}'..."
